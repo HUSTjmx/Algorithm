@@ -161,6 +161,60 @@ public:
 
         return s;
     }
+
+    //376 摆动序列
+    int wiggleMaxLength(vector<int>& nums) {
+
+        if (nums.size() <= 1)return nums.size();
+
+        int key = 0;
+        int sum = 0;
+
+        for (int i = 1;i < nums.size();i++)
+        {
+            int temp = nums[i] - nums[i - 1] > 0 ? 1 : nums[i] - nums[i - 1] < 0 ? -1 : 0;
+
+            if (temp == 0)
+            {
+                sum++;
+            }
+
+            else if (temp * key > 0)
+            {
+                sum++;
+            }
+            else
+            {
+                key = temp;
+            }
+        }
+
+        return nums.size() - sum;
+    }
+
+    //402 移掉K位数字
+    string removeKdigits(string num, int k) {
+        if (num.length() <= k)return '0';
+        if (k == 0)return num;
+
+        for (int i = 0;i < num.size() - 1;i++)
+        {
+            if (k == 0)
+            {
+                result[i] += num[i];
+            }
+            else if (num[i] < num[i + 1]) {
+                result += num[i];
+            }
+            else
+            {
+                k--;
+            }
+        }
+        return result;
+        
+    }
+    
 };
 
 void main()
