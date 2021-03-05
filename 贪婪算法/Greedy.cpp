@@ -1,7 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<array>
-
+#include <algorithm>
 using namespace std;
 
 // 打印数组
@@ -14,214 +14,129 @@ void PrintListInGreedy(vector<int> & list)
     cout << endl;
 }
 
+struct TreeNode {
+	int val;
+	TreeNode* left;
+	TreeNode* right;
+	TreeNode() : val(0), left(nullptr), right(nullptr) {}
+	TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+	TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
+};
+
 class Solution {
 public:
 
-    //983 数组形式的整数加法
-    vector<int> addToArrayForm(vector<int>& A, int K) {
-        int add = 0;
-        int pos = A.size() - 1;
-        vector<int> temp;
 
-        while (K > 0 && pos >= 0)
-        {
-            int a = K % 10;
-            temp.push_back((A[pos] + a + add) % 10);
-            add = (A[pos] + a + add) / 10;
-            K = K / 10;
-            pos--;
-        }
-
-        while (K > 0)
-        {
-            temp.push_back((add + K % 10) % 10);
-            add = (add + K % 10) / 10;
-            K = K / 10;
-        }
-
-        while (pos >= 0)
-        {
-            temp.push_back((A[pos] + add) % 10);
-            add = (add + A[pos]) / 10;
-            pos--;
-        }
-
-        reverse(temp.begin(), temp.end());
-        return temp;
-    }
-
-    //55 跳跃游戏
-    bool canJump(vector<int>& nums) {
-        if (nums.size() == 1)return true;
-        int max_step = 0;
-        for (int i = 0;i < nums.size();i++)
-        {
-            if (nums[i] == 0 && max_step <= i && i != nums.size() - 1)return false;
-            if (i + nums[i] > max_step)max_step = i + nums[i];
-        }
-        return true;
-    }
-
-    //134 加油站
-    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
-        int len = cost.size();
+	TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        if (preorder.size() == 0)return NULL;
+        TreeNode* root = new TreeNode(preorder[0]);
+        vector<int> La, Lb, Ra, Rb;
         int pos = -1;
-        int temp = 0;
-        int last_cost = 0;
-        int start = -1;
-
-        vector<int> piece_sum;
-
-        for (int i = 0;i < len;i++)
+        for (int i = 0;i < inorder.size();i++)
         {
-            gas[i] = gas[i] - cost[i];
-            if (gas[i] < 0 && start < 0)start = (i + 1) % len;
-        }
-        if (start == -1)return 0;
-
-        for (int i = 0;i < len;i++)
-        {
-            int j = (start + i) % len;
-            if (gas[j] > 0 && temp == 0)
-            {
-                pos = j;
-                if (pos != 0)last_cost = gas[i - 1];
-                else last_cost = gas[len - 1];
-            }
-            temp += gas[i];
-            if (temp < 0)
-            {
-                piece_sum.push_back(temp);
-                temp = 0;
-            }
-        }
-        
-        for (int i = 0;i < piece_sum.size();i++)
-        {
-            temp += piece_sum[i];
-            if (i != piece_sum.size() && temp < 0)return -1;
-        }
-
-        return pos;
-    }
-
-    //316
-    int findMinPos(string s)
-    {
-        int pos = 0;
-        char c = 'z';
-        for (int i = 0;i < s.length();i++)
-        {
-            if (s[i] < c) {
-                c = s[i];
+            if (inorder[i] == preorder[0]) {
                 pos = i;
+                break;
             }
+            La.push_back(inorder[i]);
         }
-        return pos;
-    }
-    void solve(string& s)
-    {
-        if (s.length() < 2)return;
-        int pos = findMinPos(s);
-        string a = s.substr(0, pos);
-        string b = s.substr(pos + 1, s.length() - pos - 1);
-        cout << s <<":"<< a << " + " <<s[pos]<<" + "<< b << " " << endl;
-        solve(a);
-        solve(b);
-        cout << s << ":" << a << " + " << s[pos] << " + " << b << " " << endl;
-        while (b.find(s[pos]) != b.npos)
+
+        for (int i = pos + 1;i < inorder.size();i++)
         {
-            b.erase(b.find(s[pos]));
+            Lb.push_back(inorder.size());
         }
 
-        string temp = s[pos] + b;
-
-        if (a.length() >= 1)
+        for (int i = 1;i < 1 + pos;i++)
         {
-            for (int i = a.length() - 1;i >= 0;i--)
-            {
-                if (temp.find(a[i]) == temp.npos)
-                {
-                    temp = a[i] + temp;
-                }
-                else if (a[i]<temp[0])
-                {
-                    temp.erase(temp.find(a[i]));
-                    temp = a[i] + temp;
-
-                }
-            }
+            Ra.push_back(preorder[i]);
         }
-        s = temp;
-    }
 
-    string removeDuplicateLetters(string s) {
-
-        solve(s);
-
-        return s;
-    }
-
-    //376 摆动序列
-    int wiggleMaxLength(vector<int>& nums) {
-
-        if (nums.size() <= 1)return nums.size();
-
-        int key = 0;
-        int sum = 0;
-
-        for (int i = 1;i < nums.size();i++)
+        for (int i = 1 + pos;i < preorder.size();i++)
         {
-            int temp = nums[i] - nums[i - 1] > 0 ? 1 : nums[i] - nums[i - 1] < 0 ? -1 : 0;
-
-            if (temp == 0)
-            {
-                sum++;
-            }
-
-            else if (temp * key > 0)
-            {
-                sum++;
-            }
-            else
-            {
-                key = temp;
-            }
+            Rb.push_back(preorder[i]);
         }
 
-        return nums.size() - sum;
-    }
+        root->left = buildTree(La, Ra);
+        root->right = buildTree(Lb, Rb);
+        return root;
+	}
 
-    //402 移掉K位数字
-    string removeKdigits(string num, int k) {
-        if (num.length() <= k)return '0';
-        if (k == 0)return num;
+    //452
+	bool cmp(const vector<int>& a, const vector<int>& b)
+	{
+		return a[0] < b[0];
+	}
+    int id = 0;
+	int findMinArrowShots(vector<vector<int>>& points) {
 
-        for (int i = 0;i < num.size() - 1;i++)
-        {
-            if (k == 0)
-            {
-                result[i] += num[i];
-            }
-            else if (num[i] < num[i + 1]) {
-                result += num[i];
-            }
-            else
-            {
-                k--;
-            }
-        }
-        return result;
-        
-    }
-    
+
+		if (points.size() <= 1)return points.size();
+		int pos = 0;
+		double min_start = (double)INT_MAX + 1;
+		double a = (double)INT_MIN - 1, b = (double)INT_MIN - 1;
+		int size = points.size();
+
+		sort(points.begin(), points.end(), cmp);
+
+		for (int j = 0;j < size;j++)
+		{
+			if (points[j][0] <= b)
+			{
+				if (b > points[j][1])
+					b = points[j][1];
+			}
+			else
+			{
+				b = points[j][1];
+				id++;
+			}
+			a = points[j][0];
+		}
+		return id;
+	}
+
+    //621
+	bool cmp2(const int& a, const int& b)
+	{
+		return a > b;
+	}
+	int leastInterval(vector<char>& tasks, int n) {
+		vector<int> list(26, 0);
+		vector<int> start(n, 0);
+
+		for (int i = 0;i < tasks.size();i++)
+		{
+			list[tasks[i] - 'A']++;
+		}
+		sort(list.begin(), list.end(), cmp2);
+
+
+		for (int i = 0;i < n;i++)
+			start[i] = i;
+
+		int id = 1;
+		int pos = -1;
+		int fx = 1;
+		for (int i = 0;i < 26;i++)
+		{
+			if (list[i] == 0)break;
+			start[0] = start[0] + list[i] * n + 1;
+			sort(start.begin(), start.end(), cmp2);
+			//cout << pos << ":" << pos << endl;
+		}
+
+		sort(start.begin(), start.end(), cmp2);
+
+		return start[0] - 1;
+	}
 };
+
+
 
 void main()
 {
     Solution* a = new Solution();
-    vector<int> list = { 1,3,1,4 };
-    string s = "abacb";
-    string b=a->removeDuplicateLetters(s);
+    vector<vector<int>> list = { {1,3},{1,4} };
+    int b = a->findMinArrowShots(list);
     cout << b << endl;
 }
