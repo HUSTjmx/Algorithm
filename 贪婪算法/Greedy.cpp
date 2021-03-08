@@ -2,6 +2,7 @@
 #include<vector>
 #include<array>
 #include <algorithm>
+#include <stack>
 using namespace std;
 
 // ´òÓ¡Êý×é
@@ -9,9 +10,9 @@ void PrintListInGreedy(vector<int> & list)
 {
     for (int i = 0;i < list.size();i++)
     {
-        cout << list[i] << " ";
+        std::cout << list[i] << " ";
     }
-    cout << endl;
+	std::cout << endl;
 }
 
 struct TreeNode {
@@ -98,45 +99,79 @@ public:
     //621
 	bool cmp2(const int& a, const int& b)
 	{
-		return a > b;
+		return a < b;
 	}
-	int leastInterval(vector<char>& tasks, int n) {
-		vector<int> list(26, 0);
-		vector<int> start(n, 0);
+	
+	int findContentChildren(vector<int>& g, vector<int>& s) {
+		sort(g.begin(), s.end(), cmp2);
+		sort(s.begin(), s.end(), cmp2);
 
-		for (int i = 0;i < tasks.size();i++)
+		int p = 0, q = 0;
+		int num = 0;
+
+		while (p < g.size())
 		{
-			list[tasks[i] - 'A']++;
+			while (q < s.size())
+			{
+				if (s[q] >= g[p])
+				{
+					num++;
+					q++;
+					break;
+				}
+				q++;
+			}
+			p++;
 		}
-		sort(list.begin(), list.end(), cmp2);
-
-
-		for (int i = 0;i < n;i++)
-			start[i] = i;
-
-		int id = 1;
-		int pos = -1;
-		int fx = 1;
-		for (int i = 0;i < 26;i++)
-		{
-			if (list[i] == 0)break;
-			start[0] = start[0] + list[i] * n + 1;
-			sort(start.begin(), start.end(), cmp2);
-			//cout << pos << ":" << pos << endl;
-		}
-
-		sort(start.begin(), start.end(), cmp2);
-
-		return start[0] - 1;
+		return num;
 	}
+
+	
+	string predictPartyVictory(string senate) {
+		int R = 0, D = 0;
+		vector<int> Power(senate.size(), 1);
+		do {
+			for (int i = 0;i < senate.size();i++)
+			{
+				if (Power[i] == 1)
+				{
+					if (senate[i] == 'D')
+					{
+						if (R > 0)
+						{
+							R--;
+							Power[i] = 0;
+						}
+						else D++;
+					}
+					if (senate[i] == 'R')
+					{
+						if (D > 0)
+						{
+							D--;
+							Power[i] = 0;
+						}
+						else R++;
+					}
+				}
+			}
+		} while (R != 0 && D != 0);
+
+		if (R == 0)return "Dire";
+		else return "Radiant";
+	}
+
+
 };
+
+
 
 
 
 void main()
 {
     Solution* a = new Solution();
-    vector<vector<int>> list = { {1,3},{1,4} };
-    int b = a->findMinArrowShots(list);
-    cout << b << endl;
+    vector<int> list = { 1,3,1,4 };
+	vector<int> b = a->nextGreaterElements(list);
+	std::cout << b[0] << endl;
 }
