@@ -162,6 +162,85 @@ public:
 	}
 
 
+	string removeDuplicates(string S) {
+		if (S.length() <= 1)return S;
+
+
+
+		stack<char> st;
+
+		for (int i = 0;i < S.length() - 1;i++)
+		{
+			if (S[i] == S[i + 1])
+				i++;
+			else
+			{
+				if (!st.empty() && st.top() == S[i])
+				{
+					st.pop();
+				}
+				else
+				{
+					st.push(S[i]);
+				}
+			}
+		}
+
+		if (!st.empty() && st.top() == S[S.length() - 1])
+			st.pop();
+		else
+			st.push(S[S.length() - 1]);
+
+		string result;
+
+		while (!st.empty())
+		{
+			result += st.top();
+			st.pop();
+		}
+
+		reverse(result.begin(), result.end());
+		
+		return result;
+	}
+
+	string longestPalindrome(string s) {
+		if (s.size() <= 1)return s;
+
+		vector<vector<int>> dp(s.length(), vector<int>());
+		for (int i = 0;i < s.length();i++)
+		{
+			dp[i].resize(s.length());
+			dp[i][i] = 1;
+		}
+
+		int L=0, R=0;
+		int max = 1;
+
+		for (int i = 1;i < s.length();i++)
+		{
+			for (int j = i - 1;j >= 0;j--)
+			{
+				if (s[i] == s[j])
+				{
+					if (i - 1 < j + 1 || dp[i - 1][j + 1])
+					{
+						dp[i][j] = 1;
+						if (max < i - j + 1)
+						{
+							max = i - j + 1;
+							L = j;
+							R = i;
+						}
+					}
+				}
+			}
+		}
+
+		return s.substr(L, R);
+
+	}
+
 };
 
 
