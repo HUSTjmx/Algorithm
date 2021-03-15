@@ -24,6 +24,68 @@ struct TreeNode {
 	TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
 };
 
+
+class MyHashSet {
+public:
+	
+	int HashSet[10000];
+	int EmptySet[10000];
+	int zs = 89;
+	int num = 0;
+	/** Initialize your data structure here. */
+	MyHashSet() {
+		for (int i = 0;i < 10000;i++)
+			HashSet[i] = INT_MIN;
+
+	}
+
+	void add(int key) {
+		int pos = key % zs;
+		int i = 1;
+		while (EmptySet[pos] != 0 && HashSet[pos] != key)
+		{
+			pos += (i * i);
+			pos = pos % 10000;
+			i++;
+		}
+		if (HashSet[pos] != key)
+		{
+			HashSet[pos] = key;
+			EmptySet[pos] = 1;
+			num++;
+		}
+	}
+
+	void remove(int key) {
+		int pos = key % zs;
+		int i = 1;
+		while (HashSet[pos] != key)
+		{
+			pos += (i * i);
+			pos = pos % 10000;
+			i++;
+		}
+		HashSet[pos] = INT_MIN;
+		EmptySet[pos] = 0;
+		num--;
+	}
+
+	/** Returns true if this set contains the specified element */
+	bool contains(int key) {
+		int pos = key % zs;
+		int i = 1;
+		while (HashSet[pos] != key && i <= num)
+		{
+			pos += (i * i);
+			pos = pos % 10000;
+			i++;
+		}
+		if (HashSet[pos] != key)return true;
+		else return false;
+
+	}
+};
+
 class Solution {
 public:
 
@@ -241,16 +303,112 @@ public:
 
 	}
 
+
+	int jump(vector<int>& nums) {
+		int pos = 0;
+		int times = 0;
+		while (pos < nums.size() - 1)
+		{
+			int max = 0;
+			for (int i = pos + 1;i <= pos + nums[pos];i++)
+			{
+				if (i + nums[i] > max)max = i+nums[i];
+			}
+			pos += max;
+			times++;
+		}
+		return times;
+	}
+
+	int uniquePaths(int m, int n) {
+		vector<vector<int>> dp(m + 1, vector<int>());
+		for (vector<int> a : dp)
+		{
+			a.resize(n + 1);
+		}
+
+		dp[1][0] = 1;
+
+		for (int i = 1;i <= m;i++)
+		{
+			for (int j = 1;j <= n;j++)
+			{
+				dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+			}
+		}
+		return dp[m][n];
+
+	}
+
+	int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+		vector<vector<int>> dp(obstacleGrid.size() + 1, vector<int>(obstacleGrid[0].size() + 1, 0));
+		dp[1][0] = 1;
+
+		for (int i = 1;i <= obstacleGrid.size();i++)
+		{
+			for (int j = 1;j <= obstacleGrid[0].size();j++)
+			{
+				dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+				if (obstacleGrid[i - 1][j - 1] == 1)dp[i][j] = 0;
+			}
+		}
+		return dp[obstacleGrid.size()][obstacleGrid[0].size()];
+	}
+	#define  MY_MAX(A,B) A>B?B:A
+	int minPathSum(vector<vector<int>>& grid) {
+		vector<vector<int>> dp(grid.size() + 1, vector<int>(grid[0].size() + 1, 0));
+
+		for (int i = 1;i <= grid.size();i++)
+		{
+			for (int j = 1;j <= grid[0].size();j++)
+			{
+				dp[i][j] = grid[i - 1][j - 1] + MY_MAX(dp[i - 1][j], dp[i][j - 1]);
+			}
+		}
+		return dp[grid.size()][grid[0].size()];
+	}
+	int maxV(vector<int>& prices, int fee, int L, int R)
+	{
+		if (R <= L)return 0;
+		int max = 0;
+		int R_pos = 0;
+
+		for (int i = L;i <= R;i++)
+		{
+			if (prices[i] > max)
+			{
+				max = prices[i];
+				R_pos = i;
+			}
+		}
+
+		int min = INT_MAX;
+		int L_pos = 0;
+		for (int i = 0;i < R_pos - 1;i++)
+		{
+			if (min < prices[i])
+			{
+				min = prices[i];
+				L_pos = i;
+			}
+		}
+
+		int v = max - min - fee;
+		if (v < 0)return maxV(prices, fee, R_pos + 1, R);
+		return v + maxV(prices, fee, L, L_pos - 1) + maxV(prices, fee, R_pos + 1, R);
+	}
+
+	int maxProfit(vector<int>& prices, int fee) {
+		return maxV(prices, fee, 0, prices.size() - 1);
+	}
+
 };
-
-
-
 
 
 void main()
 {
     Solution* a = new Solution();
     vector<int> list = { 1,3,1,4 };
-	vector<int> b = a->nextGreaterElements(list);
-	std::cout << b[0] << endl;
+	int b = a->uniquePaths(3, 4);
+	cout << b << endl;
 }
